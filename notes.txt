@@ -1,0 +1,93 @@
+queries don't have versions in them
+
+this is strictly a db/solr - like query.
+
+concentrate on making arel work first
+
+arel as a source of metadata for validation purposes
+arel/db as the target of the query
+
+/v1/widgets?sort=price.desc&show=id,price
+
+mapped to db:
+
+validations: order matters
+
+- version - valid?
+- widgets - is it a valid table?
+  - convenient way to get an array of table strings from your db
+    ...this is the "default"
+- predicate
+  - attribute list based on the column defaults
+  - column provides default attribute type
+    - ... and value conforms to the type
+- show attributes - are these valid attributes for the given table?
+  - convenient way to get list of attributes for a table
+- sort - are these valid attributes for the given table?
+  - convenient way to get list of attributes for a table
+  - is the direction valid?
+    - default direction strings
+
+do we need some slightly higher-level structure, beyond just the rack request?
+  query request?
+  "Version must be a header blah blah" - lower level...
+    ...things that are specific to the structure of the request
+    ...just enough to trust you can transform to a query request
+  "update date: must supply a date between..." - higher level
+
+rack request ==> raw request validation ==> 
+  ==> transformation ==> query request ==> higher level validation ==> 
+  ==> transformation ==> query
+          ...query request is a structy version of query
+          this separates us from the particular rack request format details
+            ...meaning those details can vary
+
+Defaults:
+  aimed at making the query stuff work out of the box
+  FIRST GOAL: in fact, do this in integration / acceptance with a sqlite backend
+
+
+
+SECOND GOAL: simulate public twitter, exactly
+
+THIRD GOAL: solr
+
+
+RackRequest
+  .path
+  .params
+
+==> validation
+
+default validation
+  "zzz" is not a valid param.  valid params are "sort", "show"
+  "ZZZ" is not a valid sort attribute.  valid sort attributes are "name", "sku", ...
+
+
+/v1/widgets?sort=price.desc&show=id,price
+
+...making it safe to make assumptions...
+
+default rack mapping
+  rack to query...
+  query factory...
+  ...parsing the criteria again...
+
+
+Query.new(
+  :version => 1, 
+  :resource_type => "product", 
+  :criteria => predicate,
+  :show => 
+  :sort => 
+)
+
+
+
+
+/v1/widgets?sort=price.desc&show=id,price
+/v:version/:resource_type:criteria?sort=:sort&show=:show
+  ...it's a plan for how to parse...
+
+need to separate: criteria are here from are these criteria valid...
+
