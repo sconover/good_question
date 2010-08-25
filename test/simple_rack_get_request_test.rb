@@ -26,15 +26,5 @@ regarding "transform a simple rack get request into a query precursor" do
     
     request = SimpleRackGetRequest.new(Rack::Request.new(args))
   end
-  
-  def new_query_precursor(args={})
-    defaults = {
-      :resource_type => "foo",
-      :show => ["id", "name"]
-    }
-    args = defaults.merge(args)
-    
-    QueryPrecursor.new(args)
-  end
-    
+   
 end
