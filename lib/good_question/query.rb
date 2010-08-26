@@ -13,9 +13,9 @@ module GoodQuestion
     end
     
     ATTRS.each do |attr_sym|
-      instance_eval(%{
+      class_eval(%{
         def #{attr_sym}
-          @data[:#{attr_sym}]
+          @data[:#{attr_sym.to_s}]
         end
       })
     end
