@@ -9,7 +9,7 @@ module GoodQuestion
       super(SimpleRackGetRequestGrammar) do
         rule(SimpleRackGetRequest) do
           declare{@rack_request.path_info.split("/").length >= 3}
-          declare{Rack::Utils.parse_nested_query(@rack_request.query_string).keys - ["show"]}
+          declare{(Rack::Utils.parse_nested_query(@rack_request.query_string).keys - ["show"]).empty?}
         end
       end
     end

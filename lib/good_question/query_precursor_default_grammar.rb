@@ -9,7 +9,7 @@ module GoodQuestion
       super(QueryPrecursorDefaultGrammar) do
         rule(QueryPrecursor) do
           declare{args[:allowed_resource_types].include?(resource_type)}
-          declare{(show - args[:allowed_show_attributes]) == []}
+          declare{(show - args[:allowed_show_attributes]).empty?}
         end
       end
     end

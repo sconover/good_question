@@ -15,5 +15,9 @@ module GoodQuestion
     def show
       @data[:show]
     end
+    
+    def to_query
+      Query.new(:resource_type => resource_type, :show => show)
+    end
   end
 end

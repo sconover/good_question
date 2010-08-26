@@ -1,6 +1,10 @@
+require "good_question/core"
+
 module GoodQuestion
   class Query
-    ATTRS = [:version, :resource_type]
+    include ValueEquality
+    
+    ATTRS = [:version, :resource_type, :show]
     
     attr_reader *ATTRS
     
@@ -14,10 +18,6 @@ module GoodQuestion
           @data[:#{attr_sym}]
         end
       })
-    end
-    
-    def ==(other)
-      @data == other.instance_variable_get("@data".to_sym)
     end
   end
 end
