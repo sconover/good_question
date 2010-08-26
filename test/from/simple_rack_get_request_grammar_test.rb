@@ -1,7 +1,7 @@
 require "./test/test_helper"
 
-require "good_question/simple_rack_get_request"
-require "good_question/simple_rack_get_request_grammar"
+require "good_question/source/simple_rack_get_request"
+require "good_question/source/simple_rack_get_request_grammar"
 include GoodQuestion
 
 regarding "grammar that describes now a simple rack get request should look" do
