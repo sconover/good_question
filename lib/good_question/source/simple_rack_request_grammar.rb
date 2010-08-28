@@ -1,5 +1,5 @@
 require "pinker"
-require "good_question/source/simple_rack_get_request"
+require "good_question/source/simple_rack_request"
 
 module GoodQuestion
 

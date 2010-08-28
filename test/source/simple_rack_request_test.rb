@@ -1,6 +1,6 @@
 require "./test/test_helper"
 
-require "good_question/source/simple_rack_get_request"
+require "good_question/source/simple_rack_request"
 include GoodQuestion
 
 regarding "transform a simple rack get request into a query precursor" do
