@@ -26,11 +26,11 @@ regarding "grammar that describes now a simple rack get request should look" do
   end
   
   test "the query params are constrained to a list of acceptable params" do
-    grammar = SimpleRackGetRequestGrammar.new(:query_param_names => ["show"])
+    grammar = SimpleRackGetRequestGrammar.new(:query_param_names => {"show" => :list})
     
     assert { grammar.apply_to(new_request("QUERY_STRING" => "show=id,name")).well_formed? }
     assert { grammar.apply_to(new_request("QUERY_STRING" => "show=id,name")).memory ==
-              {"version" => "v1", "resource_type" => "foo", "show" => "id,name"} }
+              {"version" => "v1", "resource_type" => "foo", "show" => ["id", "name"] } }
 
     deny   { grammar.apply_to(new_request("QUERY_STRING" => "show=id,name&YYY=ZZZ")).well_formed? }
   end

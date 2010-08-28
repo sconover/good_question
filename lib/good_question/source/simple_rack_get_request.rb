@@ -1,5 +1,6 @@
 require "rack/request"
 require "good_question/query_precursor"
+require "good_question/source/simple_rack_get_request_grammar"
 
 module GoodQuestion
   class SimpleRackGetRequest
@@ -8,10 +9,7 @@ module GoodQuestion
     end
     
     def to_query_precursor
-      QueryPrecursor.new(
-        :resource_type => @rack_request.path_info.split("/")[2],
-        :show => @rack_request.params["show"].split(",")
-      )
+      QueryPrecursor.new(SimpleRackGetRequestGrammar.new.apply_to(self).memory)
     end
   end
 end

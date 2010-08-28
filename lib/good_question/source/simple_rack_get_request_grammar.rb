@@ -8,7 +8,7 @@ module GoodQuestion
     def initialize(request_plan={})
       defaults = {
         :path => ["version", "resource_type"],
-        :query_param_names => ["show"]
+        :query_param_names => {"show" => :list}
       }
       request_plan = defaults.merge(request_plan)
       super(SimpleRackGetRequestGrammar) do
@@ -29,11 +29,19 @@ module GoodQuestion
           
           declare do |call, context|
             context[:params] = Rack::Utils.parse_nested_query(@rack_request.query_string)
-            (context[:params].keys - request_plan[:query_param_names]).empty?
+            (context[:params].keys - request_plan[:query_param_names].keys).empty?
           end
 
           remember do |memory, context|
-            memory.merge!(context[:params])
+            request_plan[:query_param_names].each do |param_name, value_type|
+              if context[:params].key?(param_name)
+                if value_type == :list
+                  memory[param_name] = context[:params][param_name].split(",")
+                else
+                  memory[param_name] = context[:params][param_name]
+                end
+              end
+            end
           end
           
         end
