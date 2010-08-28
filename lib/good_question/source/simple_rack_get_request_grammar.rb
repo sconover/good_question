@@ -5,11 +5,37 @@ module GoodQuestion
 
   class SimpleRackGetRequestGrammar < Pinker::Grammar
   
-    def initialize
+    def initialize(request_plan={})
+      defaults = {
+        :path => ["version", "resource_type"],
+        :query_param_names => ["show"]
+      }
+      request_plan = defaults.merge(request_plan)
       super(SimpleRackGetRequestGrammar) do
         rule(SimpleRackGetRequest) do
-          declare{@rack_request.path_info.split("/").length >= 3}
-          declare{(Rack::Utils.parse_nested_query(@rack_request.query_string).keys - ["show"]).empty?}
+          
+          declare("Path must have exactly #{request_plan[:path].length} parts.") do |call, context|
+            context[:path_parts] = @rack_request.path_info.split("/").slice(1..-1)
+            context[:path_parts].length == request_plan[:path].length
+          end
+          
+          remember do |memory, context|
+            request_plan[:path].inject(memory) do |memory, path_part_label|
+              memory[path_part_label] = context[:path_parts].shift
+              memory
+            end
+          end
+          
+          
+          declare do |call, context|
+            context[:params] = Rack::Utils.parse_nested_query(@rack_request.query_string)
+            (context[:params].keys - request_plan[:query_param_names]).empty?
+          end
+
+          remember do |memory, context|
+            memory.merge!(context[:params])
+          end
+          
         end
       end
     end
