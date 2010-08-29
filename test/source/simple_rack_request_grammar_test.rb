@@ -33,6 +33,17 @@ regarding "grammar that describes now a simple rack get request should look" do
 
     deny   { grammar.apply_to(new_request("QUERY_STRING" => "show=id,name&YYY=ZZZ")).well_formed? }
   end
+  
+  test "the exception contains the problems that were encountered" do
+    grammar = SimpleRackGetRequestGrammar.new
+    error = rescuing{grammar.apply_to(
+              new_request("PATH_INFO" => "/v1", 
+                          "QUERY_STRING" => "YYY=ZZZ")).well_formed!}
+    assert { error.problems.collect{|p|p.message} == [
+               "Path must have exactly 2 parts.",
+               "Query params can be: show."
+             ] }
+  end
 
   test "some query params are optional" do
     grammar = SimpleRackGetRequestGrammar.new

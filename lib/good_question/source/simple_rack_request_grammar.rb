@@ -27,7 +27,7 @@ module GoodQuestion
           end
           
           
-          declare do |call, context|
+          declare("Query params can be: #{request_plan[:query_param_names].keys.join(', ')}.") do |call, context|
             context[:params] = Rack::Utils.parse_nested_query(@rack_request.query_string)
             (context[:params].keys - request_plan[:query_param_names].keys).empty?
           end
