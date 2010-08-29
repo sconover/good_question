@@ -45,6 +45,15 @@ regarding "grammar that describes now a simple rack get request should look" do
              ] }
   end
 
+  test "problems have appropriate details, for instance the list of what you provided vs what's actually allowed" do
+    grammar = SimpleRackGetRequestGrammar.new(:query_param_names => {"show" => :list})
+    error = rescuing{grammar.apply_to(
+              new_request("QUERY_STRING" => "show=y,z&YYY=111&ZZZ=222")).well_formed!}
+    assert { error.problems.collect{|p|p.message} == ["Query params can be: show."] }
+    
+    assert { error.problems.first.details == {:allowed => ["show"], :not_allowed => ["YYY", "ZZZ"]} }
+  end
+
   test "some query params are optional" do
     grammar = SimpleRackGetRequestGrammar.new
     assert { grammar.apply_to(new_request("QUERY_STRING" => "show=id,name")).well_formed? }

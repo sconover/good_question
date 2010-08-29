@@ -27,9 +27,16 @@ module GoodQuestion
           end
           
           
-          declare("Query params can be: #{request_plan[:query_param_names].keys.join(', ')}.") do |call, context|
+          declare do |call, context|
             context[:params] = Rack::Utils.parse_nested_query(@rack_request.query_string)
-            (context[:params].keys - request_plan[:query_param_names].keys).empty?
+            not_allowed = context[:params].keys - request_plan[:query_param_names].keys
+            if not_allowed.empty?
+              true
+            else
+              call.fail("Query params can be: #{request_plan[:query_param_names].keys.join(', ')}.",
+                :allowed => request_plan[:query_param_names].keys.sort, 
+                :not_allowed => not_allowed.sort)
+            end
           end
 
           remember do |memory, context|
