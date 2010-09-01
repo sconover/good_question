@@ -8,8 +8,22 @@ module GoodQuestion
     def initialize(args)
       super(QueryPrecursorDefaultGrammar) do
         rule(QueryPrecursor) do
-          declare{args[:allowed_resource_types].include?(resource_type)}
-          declare{(show - args[:allowed_show_attributes]).empty?}
+          
+          declare do |call|
+            args[:allowed_resource_types].include?(resource_type) ||
+              call.fail("'#{resource_type}' is not an allowed resource type.", 
+                        :allowed => args[:allowed_resource_types],
+                        :not_allowed => [resource_type])
+          end
+          
+          declare do |call|
+            not_allowed = (show - args[:allowed_show_attributes])
+            not_allowed.empty? ||
+              call.fail("#{not_allowed.join(", ")} not allowed in show.", 
+                        :allowed => args[:allowed_show_attributes],
+                        :not_allowed => not_allowed)
+          end
+      
         end
       end
     end

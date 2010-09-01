@@ -10,7 +10,12 @@ regarding "default grammar for a query precursor" do
     
     assert { grammar.apply_to(new_query_precursor("resource_type" => "foo")).well_formed? }
     deny   { grammar.apply_to(new_query_precursor("resource_type" => "ZZZ")).well_formed? }
-  end
+
+    error = rescuing{grammar.apply_to(new_query_precursor("resource_type" => "ZZZ")).well_formed!}
+    assert { error.message == "'ZZZ' is not an allowed resource type." }
+    assert { error.problems.first.details == {:allowed => ["foo", "bar"], 
+                                              :not_allowed => ["ZZZ"]} }
+  end  
   
   test "acceptable show attributes" do
     grammar = new_grammar(:allowed_show_attributes => ["id", "name"])
@@ -18,6 +23,11 @@ regarding "default grammar for a query precursor" do
     assert { grammar.apply_to(new_query_precursor("show" => ["name"])).well_formed? }
     assert { grammar.apply_to(new_query_precursor("show" => ["id", "name"])).well_formed? }
     deny   { grammar.apply_to(new_query_precursor("show" => ["id", "ZZZ"])).well_formed? }
+
+    error = rescuing{grammar.apply_to(new_query_precursor("show" => ["YYY", "id", "ZZZ"])).well_formed!}
+    assert { error.message == "YYY, ZZZ not allowed in show." }
+    assert { error.problems.first.details == {:allowed => ["id", "name"], 
+                                              :not_allowed => ["YYY", "ZZZ"]} }
   end
   
   def new_grammar(args={})
