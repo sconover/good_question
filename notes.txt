@@ -1,3 +1,43 @@
+now generalize this:
+
+
+          declare do |call|
+            args[:allowed_resource_types].include?(resource_type) ||
+              call.fail("'#{resource_type}' is not an allowed resource type.", 
+                        :allowed => args[:allowed_resource_types],
+                        :not_allowed => [resource_type])
+          end
+          
+          declare do |call|
+            not_allowed = (show - args[:allowed_show_attributes])
+            not_allowed.empty? ||
+              call.fail("#{not_allowed.join(", ")} not allowed in show.", 
+                        :allowed => args[:allowed_show_attributes],
+                        :not_allowed => not_allowed)
+          end
+
+declare_in_list(show, args[:allowed_show_attributes], '#{not_allowed} not allowed in show.')
+
+where do I put that?
+
+reopen DeclarationContext?
+  too late?
+  it's global.
+
+create a module, extend?
+
+...other options.
+
+must be basic ruby.
+
+
+how best to extract commonality?  where should that stuff go?
+
+
+
+
+========================
+
 queries don't have versions in them
 
 this is strictly a db/solr - like query.
