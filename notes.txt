@@ -1,3 +1,33 @@
+Must have a nice clean high-level out-of-the-box way of specifying / mapping...
+  
+
+/v1/widgets?show=id,name&q='color=pink'
+
+RackRuleBuilder.new(:my_get_request) {
+
+  declare_path(:version, :resource_type)
+  declare_query_string("show" => :show, "q" => :criteria, "sort" => :sort)
+  declare_headers("show" => :show, "q" => :criteria, "sort" => :sort)
+
+  rule(:version) {
+    declare_range("Version must be a number between"){{:range => 1..2, :actual => self}}
+  }
+
+  rule(:resource_type) {
+
+  }
+
+  rule(:show) {
+
+  }
+
+  rule(:criteria) {
+
+  }
+}
+
+==================
+
 query_precursor = SimpleRackGetRequest::RULE.apply_to(rack_request).satisfied!.memory
 
 Query::RULE.apply_to(query_precursor).satisfied!
