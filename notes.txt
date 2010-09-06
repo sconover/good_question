@@ -1,3 +1,54 @@
+query_precursor = SimpleRackGetRequest::RULE.apply_to(rack_request).satisfied!.memory
+
+Query::RULE.apply_to(query_precursor).satisfied!
+
+Query.new(query_precursor)
+
+
+....these are excuses to prove out focused rule builders (validation / transformation)
+  ...ok now we're getting to grammars
+
+output is a parser.  parser parses and returns a tree.
+
+domain-specific builders
+
+simple rack get request
+
+rack post request in json format
+
+
+===================
+
+what about going straight to valid query input?
+  ...no...separate builders...
+
+tools for making low-level requests into structs
+  ...a kind of language for validating and pulling these apart
+    (rack request => struct [array, hash, primitives])
+
+tools for making structs into higher-level query input
+  ...a language for taking a struct and making it into higher-level objects
+   (struct => attributes, criteria, etc)
+
+
+
+
+
+SimpleRackGetRequest::RULE.apply_to(rack_request).satisfied!.memory
+
+
+rack_request
+  validate and transform...
+
+
+
+Query.new(QueryPrecursor::RULE.apply_to(SimpleRackGetRequest::RULE.apply_to(rack_request).memory)).memory)
+
+
+
+
+=================
+
 now generalize this:
 
 
