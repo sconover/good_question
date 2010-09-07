@@ -70,7 +70,7 @@ regarding "describe and constrain a rack request" do
             path{
               parts_are(:book, :page_number)
               rule(:book){
-                declare_list{{:allowed => %w{coraline lincoln infidel}}}
+                in_list{%w{coraline lincoln infidel}}
               }
               rule(:page_number){
                 declare{(1..10).include?(self.to_i)}

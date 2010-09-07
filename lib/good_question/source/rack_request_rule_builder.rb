@@ -1,5 +1,5 @@
 require "pinker"
-require "pinker/addons/list"
+require "pinker/addons/in_list"
 require "rack/request"
 
 #move into pinker?
@@ -19,7 +19,7 @@ require "rack/request"
 module GoodQuestion
   
   class BaseRuleBuilder < Pinker::RuleBuilder
-    include Pinker::RuleBuilderAddons::DeclareList
+    include Pinker::RuleBuilderAddons::InList
   end
   
   class RackRequestRuleBuilder < BaseRuleBuilder
