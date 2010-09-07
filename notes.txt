@@ -10,19 +10,19 @@ RackRuleBuilder.new(:my_get_request) {
   declare_headers("show" => :show, "q" => :criteria, "sort" => :sort)
 
   rule(:version) {
-    declare_range("Version must be a number between"){{:range => 1..2, :actual => self}}
+    declare_range("Version must be a number between 1 and 2"){{:range => 1..2}}
   }
 
   rule(:resource_type) {
-
+    declare_list{{:allowed => %w{widgets foosballs}}}
   }
 
   rule(:show) {
-
+    declare_list{{:allowed => %w{columns from a table}}}
   }
 
   rule(:criteria) {
-
+    
   }
 }
 
