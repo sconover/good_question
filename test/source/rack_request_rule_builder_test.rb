@@ -9,6 +9,9 @@ include GoodQuestion
 
 #path rule builder...
 
+
+#what about when we put criteria in the path?
+
 regarding "describe and constrain a rack request" do
 
   regarding "the path" do
@@ -73,9 +76,7 @@ regarding "describe and constrain a rack request" do
                 in_list{%w{coraline lincoln infidel}}
               }
               rule(:page_number){
-                declare{(1..10).include?(self.to_i)}
-                #range{1..10}
-                #type conversion?
+                in_range{{:allowed => 1..10, :actual => self.to_i}}
               }
             }
           }.build
