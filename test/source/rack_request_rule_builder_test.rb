@@ -76,7 +76,8 @@ regarding "describe and constrain a rack request" do
                 in_list{%w{coraline lincoln infidel}}
               }
               rule(:page_number){
-                in_range{{:allowed => 1..10, :actual => self.to_i}}
+                type_is{Integer}
+                in_range{1..10}
               }
             }
           }.build
