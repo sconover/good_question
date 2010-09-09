@@ -7,17 +7,6 @@ require "rack/request"
 #move into pinker?
 #extract into its own project?
 
-#path {
-#  parts_are(:book, :page_number)
-#  rule(:book) {
-#    in_list(%w{coraline lincoln infidel})
-#  }
-#  rule(:page_number) {
-#    type(Integer)
-#    range(1..200)
-#  }
-#}
-
 module GoodQuestion
   
   class BaseRuleBuilder < Pinker::RuleBuilder

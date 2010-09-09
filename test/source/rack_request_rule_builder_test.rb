@@ -77,6 +77,7 @@ regarding "describe and constrain a rack request" do
               }
               rule(:page_number){
                 type_is{Integer}
+                change_self_to{self.to_i}
                 in_range{1..10}
               }
             }
