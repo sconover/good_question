@@ -44,6 +44,7 @@ regarding "describe and constrain a rack request" do
           }.build
     
         assert{ rule.apply_to(req("PATH_INFO" => "/coraline/7")).satisfied? }
+        
         deny  { rule.apply_to(req("PATH_INFO" => "/coraline/7/zzz")).satisfied? }
         deny  { rule.apply_to(req("PATH_INFO" => "/coraline")).satisfied? }
       end
@@ -84,6 +85,7 @@ regarding "describe and constrain a rack request" do
           }.build
       
         assert{ rule.apply_to(req("PATH_INFO" => "/coraline/7")).satisfied? }
+        
         deny  { rule.apply_to(req("PATH_INFO" => "/ZZZ/7")).satisfied? }
         deny  { rule.apply_to(req("PATH_INFO" => "/coraline/999")).satisfied? }
       end
@@ -143,6 +145,18 @@ regarding "describe and constrain a rack request" do
     end
     
     test "params are returned even if there is a problem" do
+      rule = 
+        RackRequestRuleBuilder.new(:my_page_request) {
+          query_string{
+            params_are(:required => {"format" => :format, "zzz" => :zzz})
+            rule(:show){}
+            rule(:criteria){}
+          }
+        }.build
+    
+      deny  { rule.apply_to(req("QUERY_STRING" => "format=json")).satisfied? }
+
+      assert{ rule.apply_to(req("QUERY_STRING" => "format=json")).memory[:format] == ["json"] }
     end
 
   end
