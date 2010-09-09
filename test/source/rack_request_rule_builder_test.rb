@@ -95,70 +95,96 @@ regarding "describe and constrain a rack request" do
   
   regarding "the query string" do
 
-    test "on success, break up the query string into params" do
-      rule = 
-        RackRequestRuleBuilder.new(:my_page_request) {
-          query_string{
-            params_are(:optional => {"show" => :show, "q" => :criteria})
-            rule(:show){}
-            rule(:criteria){}
-          }
-        }.build
-    
-      result = rule.apply_to(req("QUERY_STRING" => "q=foo&show=bar"))
-      assert{ result.memory[:criteria] == ["foo"] }
-      assert{ result.memory[:show] == ["bar"] }
-    end
+    regarding "the query params are..." do
 
-    test "optional params" do
-      rule = 
-        RackRequestRuleBuilder.new(:my_page_request) {
-          query_string{
-            params_are(:optional => {"show" => :show, "q" => :criteria})
-            rule(:show){}
-            rule(:criteria){}
-          }
-        }.build
+      test "on success, break up the query string into params" do
+        rule = 
+          RackRequestRuleBuilder.new(:my_page_request) {
+            query_string{
+              params_are(:optional => {"show" => :show, "q" => :criteria})
+              rule(:show){}
+              rule(:criteria){}
+            }
+          }.build
     
-      assert{ rule.apply_to(req("QUERY_STRING" => "q=foo&show=bar")).satisfied? }
-      assert{ rule.apply_to(req("QUERY_STRING" => "q=foo")).satisfied? }
-      assert{ rule.apply_to(req("QUERY_STRING" => "show=bar")).satisfied? }
-      assert{ rule.apply_to(req("QUERY_STRING" => "")).satisfied? }
+        result = rule.apply_to(req("QUERY_STRING" => "q=foo&show=bar"))
+        assert{ result.memory[:criteria] == ["foo"] }
+        assert{ result.memory[:show] == ["bar"] }
+      end
+
+      test "optional params" do
+        rule = 
+          RackRequestRuleBuilder.new(:my_page_request) {
+            query_string{
+              params_are(:optional => {"show" => :show, "q" => :criteria})
+              rule(:show){}
+              rule(:criteria){}
+            }
+          }.build
+    
+        assert{ rule.apply_to(req("QUERY_STRING" => "q=foo&show=bar")).satisfied? }
+        assert{ rule.apply_to(req("QUERY_STRING" => "q=foo")).satisfied? }
+        assert{ rule.apply_to(req("QUERY_STRING" => "show=bar")).satisfied? }
+        assert{ rule.apply_to(req("QUERY_STRING" => "")).satisfied? }
       
-      deny  { rule.apply_to(req("QUERY_STRING" => "ZZZ=YYY")).satisfied? }
-    end
+        deny  { rule.apply_to(req("QUERY_STRING" => "ZZZ=YYY")).satisfied? }
+      end
 
-    test "required params" do
-      rule = 
-        RackRequestRuleBuilder.new(:my_page_request) {
-          query_string{
-            params_are(:required => {"format" => :format})
-            rule(:show){}
-            rule(:criteria){}
-          }
-        }.build
+      test "required params" do
+        rule = 
+          RackRequestRuleBuilder.new(:my_page_request) {
+            query_string{
+              params_are(:required => {"format" => :format})
+              rule(:format){}
+            }
+          }.build
     
-      assert{ rule.apply_to(req("QUERY_STRING" => "format=json")).satisfied? }
+        assert{ rule.apply_to(req("QUERY_STRING" => "format=json")).satisfied? }
 
-      deny  { rule.apply_to(req("QUERY_STRING" => "")).satisfied? }
-      deny  { rule.apply_to(req("QUERY_STRING" => "ZZZ=YYY")).satisfied? }
+        deny  { rule.apply_to(req("QUERY_STRING" => "")).satisfied? }
+        deny  { rule.apply_to(req("QUERY_STRING" => "ZZZ=YYY")).satisfied? }
+      end
+    
+      test "params are returned even if there is a problem" do
+        rule = 
+          RackRequestRuleBuilder.new(:my_page_request) {
+            query_string{
+              params_are(:required => {"format" => :format, "zzz" => :zzz})
+              rule(:show){}
+              rule(:criteria){}
+            }
+          }.build
+    
+        deny  { rule.apply_to(req("QUERY_STRING" => "format=json")).satisfied? }
+
+        assert{ rule.apply_to(req("QUERY_STRING" => "format=json")).memory[:format] == ["json"] }
+      end
     end
     
-    test "params are returned even if there is a problem" do
-      rule = 
-        RackRequestRuleBuilder.new(:my_page_request) {
-          query_string{
-            params_are(:required => {"format" => :format, "zzz" => :zzz})
-            rule(:show){}
-            rule(:criteria){}
-          }
-        }.build
+    regarding "apply rule with param name" do
+
+      test "basic rules" do
+        rule = 
+          RackRequestRuleBuilder.new(:my_page_request) {
+            query_string{
+              params_are(:optional => {"show" => :show, "q" => :criteria})
+              rule(:show){
+                change_self_to{self.first.split(",")}
+                in_list{%w{id name price}}
+              }
+              rule(:criteria){
+                declare{self.first=="color=pink"}
+              }
+            }
+          }.build
     
-      deny  { rule.apply_to(req("QUERY_STRING" => "format=json")).satisfied? }
+        assert{ rule.apply_to(req("QUERY_STRING" => "q=color=pink&show=id,name")).satisfied? }
 
-      assert{ rule.apply_to(req("QUERY_STRING" => "format=json")).memory[:format] == ["json"] }
+        deny  { rule.apply_to(req("QUERY_STRING" => "q=color=blue&show=id,name")).satisfied? }
+        deny  { rule.apply_to(req("QUERY_STRING" => "q=color=pink&show=ZZZ,id,name")).satisfied? }
+      end
+
     end
-
   end
 
   def req(args={})

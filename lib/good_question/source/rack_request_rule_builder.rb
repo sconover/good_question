@@ -92,7 +92,7 @@ module GoodQuestion
       
       remember{|memory, context|memory.merge!(context[:params])}
       
-      full_mapping.keys.each do |param|
+      full_mapping.values.each do |param|
         with_rule(param){|rule, context|
           if context[:params].key?(param)
             rule.apply_to(context[:params][param])
