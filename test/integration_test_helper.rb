@@ -22,13 +22,18 @@ unless Object.new.respond_to?(:instance_exec) #true for 1.8.7, 1.9.  false for 1
 end
 
 module HttpTestMethods
-  def perform_GET(path_query)
+  def perform_GET(path_query, headers={})
     response = exec_request({
       "REQUEST_METHOD" => "GET",
       "SERVER_NAME" => "api.twitter.com",
       "SERVER_PORT" => "80",
       "PATH_INFO" => path_query
-    })
+    }.merge(
+      headers.inject({}) do |h, (k,v)|
+        h["HTTP_#{k}"] = v
+        h
+      end
+    ))
     
     full_body = response.body.join
     
@@ -55,7 +60,21 @@ end
 class MiniTest::Spec
   class << self
     
-    def test_GET(path_query, extra_description=nil, &block)
+    def test_GET(*args, &block)
+      
+      path_query = args[0]
+      request_headers = {}
+      extra_description = nil
+      if args.length == 2
+        if args[1].is_a?(String)
+          extra_description = args[1]
+        else
+          request_headers = args[1]
+        end
+      end
+      if args.length == 3
+        extra_description = args[2]
+      end
       
       test_title = ""
       test_title << extra_description + " " if extra_description
@@ -63,7 +82,7 @@ class MiniTest::Spec
       
       test(test_title) do
         extend HttpTestMethods
-        body, headers, code = perform_GET(path_query)
+        body, headers, code = perform_GET(path_query, request_headers)
         if block.arity == 1
           self.instance_exec(body, &block)
         elsif block.arity == 2
