@@ -30,13 +30,18 @@ module HttpTestMethods
       "PATH_INFO" => path_query
     })
     
-    if response.headers["Content-Type"].include?("json")
-      JSON.parse(response.body.join)
-    elsif response.headers["Content-Type"].include?("xml")
-      Nokogiri::XML(response.body.join)
-    else
-      raise "don't know what to do with #{response.headers["Content-Type"]}"
-    end
+    full_body = response.body.join
+    
+    parsed_body = 
+      if response.headers["Content-Type"].include?("json")
+        JSON.parse(full_body)
+      elsif response.headers["Content-Type"].include?("xml")
+        Nokogiri::XML(full_body)
+      else
+        full_body
+      end
+
+    [parsed_body, response.headers, response.status]
   end
 
   def exec_request(env)
@@ -51,7 +56,14 @@ class MiniTest::Spec
     def test_GET(path_query, &block)
       test(path_query) do
         extend HttpTestMethods
-        self.instance_exec(perform_GET(path_query), &block)
+        body, headers, code = perform_GET(path_query)
+        if block.arity == 1
+          self.instance_exec(body, &block)
+        elsif block.arity == 2
+          self.instance_exec(body, headers, &block)
+        elsif block.arity == 3
+          self.instance_exec(body, headers, code, &block)
+        end
       end
     end
   
