@@ -47,11 +47,20 @@ regarding "really use twitter (this is a control, and to prove out a test suite,
       assert{ xml.xpath("/hash/error").first.text == "Not found" }
     end
     
-    test_GET "/4/statuses/user_timeline.json?screen_name=gq_amy", 
-             "invalid version" do |html, headers, code|
-      assert{ code == 404 }
-      assert{ headers["Content-Type"] == "text/html; charset=utf-8" }
-      assert{ html.to_s.include?("Sorry, that page doesn’t exist!") }
+    #over-RF'd?
+    [["/4/statuses/user_timeline.json?screen_name=gq_amy", 
+      "invalid version"],
+     ["/4/statuses/user_timeline.json?screen_name=gq_amy", 
+      "bad path.  obviously twitter is treating bad version the same as bad path"]].each do |url, comments|
+
+      test_GET url, comments do |html, headers, code|
+        assert{ code == 404 }
+        assert{ headers["Content-Type"] == "text/html; charset=utf-8" }
+        assert{ html.to_s.include?("Sorry, that page doesn’t exist!") }
+      end
+
     end
+    
+    
   end
 end
