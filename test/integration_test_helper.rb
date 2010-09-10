@@ -37,6 +37,8 @@ module HttpTestMethods
         JSON.parse(full_body)
       elsif response.headers["Content-Type"].include?("xml")
         Nokogiri::XML(full_body)
+      elsif response.headers["Content-Type"].include?("html")
+        Nokogiri::HTML(full_body)
       else
         full_body
       end
@@ -53,8 +55,13 @@ end
 class MiniTest::Spec
   class << self
     
-    def test_GET(path_query, &block)
-      test(path_query) do
+    def test_GET(path_query, extra_description=nil, &block)
+      
+      test_title = ""
+      test_title << extra_description + " " if extra_description
+      test_title << path_query
+      
+      test(test_title) do
         extend HttpTestMethods
         body, headers, code = perform_GET(path_query)
         if block.arity == 1

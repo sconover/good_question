@@ -12,8 +12,8 @@ regarding "really use twitter (this is a control, and to prove out a test suite,
               ] }
     end
   
-    test_GET "/1/statuses/user_timeline.xml?screen_name=gq_amy" do |doc|
-      assert{ doc.xpath("//text").texts == [
+    test_GET "/1/statuses/user_timeline.xml?screen_name=gq_amy" do |xml|
+      assert{ xml.xpath("//text").texts == [
                 "dog bit me",
                 "watching paint dry",
                 "i went to the store"
@@ -27,7 +27,7 @@ regarding "really use twitter (this is a control, and to prove out a test suite,
     test_GET "/1/statuses/user_timeline.ZZZZZZ?screen_name=gq_amy" do |body, headers, code|
       assert{ code == 403 }
       assert{ headers["Content-Type"] == "text/html; charset=utf-8" }
-      assert{ body.strip == "" }
+      assert{ body.text.strip == "" }
     end
 
     test_GET "/1/statuses/user_timeline.json?screen_name=gq_amyZZ" do |json, headers, code|
@@ -37,12 +37,17 @@ regarding "really use twitter (this is a control, and to prove out a test suite,
                         "error"=>"Not found"} }
     end
 
-    test_GET "/1/statuses/user_timeline.xml?screen_name=gq_amyZZ" do |doc, headers, code|
+    test_GET "/1/statuses/user_timeline.xml?screen_name=gq_amyZZ" do |xml, headers, code|
       assert{ code == 404 }
       assert{ headers["Content-Type"] == "application/xml; charset=utf-8" }
-      assert{ doc.xpath("/hash/request").first.text == "/1/statuses/user_timeline.xml?screen_name=gq_amyZZ" }
-      assert{ doc.xpath("/hash/error").first.text == "Not found" }
+      assert{ xml.xpath("/hash/request").first.text == "/1/statuses/user_timeline.xml?screen_name=gq_amyZZ" }
+      assert{ xml.xpath("/hash/error").first.text == "Not found" }
     end
-
+    
+    test_GET "/4/statuses/user_timeline.json?screen_name=gq_amy", "invalid version" do |html, headers, code|
+      assert{ code == 404 }
+      assert{ headers["Content-Type"] == "text/html; charset=utf-8" }
+      assert{ html.to_s.include?("Sorry, that page doesn’t exist!") }
+    end
   end
 end
