@@ -23,9 +23,8 @@ end
 
 module HttpTestMethods
   def perform_GET(path_query, headers={})
-    response = exec_request({
+    request_env = {
       "REQUEST_METHOD" => "GET",
-      "SERVER_NAME" => "api.twitter.com",
       "SERVER_PORT" => "80",
       "PATH_INFO" => path_query
     }.merge(
@@ -34,7 +33,11 @@ module HttpTestMethods
         h["HTTP_#{header_name}"] = v
         h
       end
-    ))
+    )
+    
+    request_env.merge!(default_request_env) if respond_to?(:default_request_env)
+    
+    response = exec_request(request_env)
     
     full_body = response.body.join
     

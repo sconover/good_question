@@ -2,6 +2,10 @@ require "./test/integration_test_helper"
 
 regarding "really use twitter (this is a control, and to prove out a test suite, to be reused)" do
 
+  def default_request_env
+    {"SERVER_NAME" => "api.twitter.com"}
+  end
+  
   regarding "basics" do
     
     test_GET "/1/statuses/user_timeline.json?screen_name=gq_amy" do |json|
