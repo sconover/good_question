@@ -30,7 +30,8 @@ module HttpTestMethods
       "PATH_INFO" => path_query
     }.merge(
       headers.inject({}) do |h, (k,v)|
-        h["HTTP_#{k}"] = v
+        header_name = k.upcase.gsub("-", "_")
+        h["HTTP_#{header_name}"] = v
         h
       end
     ))
@@ -73,9 +74,10 @@ class MiniTest::Spec
         end
       end
       if args.length == 3
+        request_headers = args[1]
         extra_description = args[2]
       end
-      
+
       test_title = ""
       test_title << extra_description + " " if extra_description
       test_title << path_query

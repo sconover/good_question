@@ -92,13 +92,26 @@ regarding "really use twitter (this is a control, and to prove out a test suite,
       assert{ json["error"] == "This method requires authentication." }
     end
 
-    # test_GET "/1/statuses/user_timeline.json", {"Authorization" => "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="},
-    #          "no more basic auth, json" do |json, headers, code|
-    #   assert{ code == 401 }
-    #   assert{ headers["Status"] == "401 Unauthorized" }
-    #   assert{ headers["Content-Type"] == "application/json; charset=utf-8" }
-    #   assert{ json["error"][0]["message"] == "Basic authentication is not supported" }
-    # end
+    INCORRECT_GQ_AMY_BASIC_AUTH_HASH = "QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+    test_GET "/1/statuses/user_timeline.json", 
+             {"Authorization" => "Basic #{INCORRECT_GQ_AMY_BASIC_AUTH_HASH}"},
+             "bad password, json" do |json, headers, code|
+      assert{ code == 401 }
+      assert{ headers["Status"] == "401 Unauthorized" }
+      assert{ headers["Content-Type"] == "application/json; charset=utf-8" }
+      assert{ json == {"errors"=> [{"code" => 32, "message" => "Could not authenticate you"}]} }
+    end
+    
+    
+    CORRECT_GQ_AMY_BASIC_AUTH_HASH = "Z3FfYW15OmozYW5uMw=="
+    test_GET "/1/statuses/user_timeline.json", 
+             {"Authorization" => "Basic #{CORRECT_GQ_AMY_BASIC_AUTH_HASH}"},
+             "no more basic auth, json" do |json, headers, code|
+      assert{ code == 401 }
+      assert{ headers["Status"] == "401 Unauthorized" }
+      assert{ headers["Content-Type"] == "application/json; charset=utf-8" }
+      assert{ json == {"errors"=> [{"code" => 53, "message" => "Basic authentication is not supported"}]} }
+    end
 
 
   end
