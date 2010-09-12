@@ -22,24 +22,32 @@ unless Object.new.respond_to?(:instance_exec) #true for 1.8.7, 1.9.  false for 1
 end
 
 module HttpTestMethods
-  def perform_GET(path_query, headers={})
-    response = Rack::Client.new(url_prefix).get(path_query, headers, {})
+  def check_rack_client
+    raise %{you need to define a method called rack_client.  ex:
+      def rack_client
+        Rack::Client.new("http://api.twitter.com")
+      end
+    } unless self.respond_to?(:rack_client)
+  end
+  
+  def GET(path_query, headers={})
+    check_rack_client
     
-    # request_env = {
-    #   "REQUEST_METHOD" => "GET",
-    #   "SERVER_PORT" => "80",
-    #   "PATH_INFO" => path_query
-    # }.merge(
-    #   headers.inject({}) do |h, (k,v)|
-    #     header_name = k.upcase.gsub("-", "_")
-    #     h["HTTP_#{header_name}"] = v
-    #     h
-    #   end
-    # )
-    # 
-    # request_env.merge!(default_request_env) if respond_to?(:default_request_env)
-    # response = exec_request(request_env)
+    response = rack_client.get(path_query, headers, query_params_not_used={})
+    transform_response(response)    
+  end
+  
+  def POST(path_query, post_contents)
+    check_rack_client
+    
+    headers = post_contents[:headers] || {}
+    params = post_contents[:params] || {}
+    
+    response = rack_client.post(path_query, headers, params={})
+    transform_response(response)        
+  end
 
+  def transform_response(response)
     full_body = response.body.join
     
     parsed_body = 
@@ -54,17 +62,6 @@ module HttpTestMethods
       end
 
     [parsed_body, response.headers, response.status]
-  end
-  
-  def perform_POST(path_query, post_contents)
-    headers = post_contents[:headers] || {}
-    params = post_contents[:params] || {}
-    
-    
-  end
-
-  def exec_request(env)
-    Rack::Client.new.call(env)[2]
   end
 
 end
@@ -95,7 +92,7 @@ class MiniTest::Spec
       
       test(test_title) do
         extend HttpTestMethods
-        body, headers, code = perform_GET(path_query, request_headers)
+        body, headers, code = GET(path_query, request_headers)
         if block.arity == 1
           self.instance_exec(body, &block)
         elsif block.arity == 2

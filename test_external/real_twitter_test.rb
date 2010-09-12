@@ -2,8 +2,8 @@ require "./test_external/integration_test_helper"
 
 regarding "really use twitter (this is a control, and to prove out a test suite, to be reused)" do
 
-  def url_prefix
-    "http://api.twitter.com"
+  def rack_client
+    Rack::Client.new("http://api.twitter.com")
   end
   
   regarding "basics" do
