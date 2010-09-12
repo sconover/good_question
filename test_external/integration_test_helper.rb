@@ -23,22 +23,23 @@ end
 
 module HttpTestMethods
   def perform_GET(path_query, headers={})
-    request_env = {
-      "REQUEST_METHOD" => "GET",
-      "SERVER_PORT" => "80",
-      "PATH_INFO" => path_query
-    }.merge(
-      headers.inject({}) do |h, (k,v)|
-        header_name = k.upcase.gsub("-", "_")
-        h["HTTP_#{header_name}"] = v
-        h
-      end
-    )
+    response = Rack::Client.new(url_prefix).get(path_query, headers, {})
     
-    request_env.merge!(default_request_env) if respond_to?(:default_request_env)
-    
-    response = exec_request(request_env)
-    
+    # request_env = {
+    #   "REQUEST_METHOD" => "GET",
+    #   "SERVER_PORT" => "80",
+    #   "PATH_INFO" => path_query
+    # }.merge(
+    #   headers.inject({}) do |h, (k,v)|
+    #     header_name = k.upcase.gsub("-", "_")
+    #     h["HTTP_#{header_name}"] = v
+    #     h
+    #   end
+    # )
+    # 
+    # request_env.merge!(default_request_env) if respond_to?(:default_request_env)
+    # response = exec_request(request_env)
+
     full_body = response.body.join
     
     parsed_body = 
@@ -53,6 +54,13 @@ module HttpTestMethods
       end
 
     [parsed_body, response.headers, response.status]
+  end
+  
+  def perform_POST(path_query, post_contents)
+    headers = post_contents[:headers] || {}
+    params = post_contents[:params] || {}
+    
+    
   end
 
   def exec_request(env)

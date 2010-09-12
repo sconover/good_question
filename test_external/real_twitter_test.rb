@@ -1,9 +1,9 @@
-require "./test/integration_test_helper"
+require "./test_external/integration_test_helper"
 
 regarding "really use twitter (this is a control, and to prove out a test suite, to be reused)" do
 
-  def default_request_env
-    {"SERVER_NAME" => "api.twitter.com"}
+  def url_prefix
+    "http://api.twitter.com"
   end
   
   regarding "basics" do
