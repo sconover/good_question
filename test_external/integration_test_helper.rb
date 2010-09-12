@@ -3,6 +3,34 @@ require "rack/client"
 require "json"
 require "nokogiri"
 
+require 'net/http'
+require 'net/https'
+
+module Rack
+  module Client
+    module Handler
+      class NetHTTP
+
+        def connection_for(request)
+          connection = Net::HTTP.new(request.host, request.port)
+
+          if request.scheme == 'https'
+            connection.use_ssl = true
+            connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+          
+          #connection.set_debug_output $stderr
+          
+          connection.start
+          connection
+        end
+
+      end
+    end
+  end
+end
+
+
 unless Object.new.respond_to?(:instance_exec) #true for 1.8.7, 1.9.  false for 1.8.6
   #see http://eigenclass.org/hiki.rb?instance_exec
   class Object
@@ -42,8 +70,7 @@ module HttpTestMethods
     
     headers = post_contents[:headers] || {}
     params = post_contents[:params] || {}
-    
-    response = rack_client.post(path_query, headers, params={})
+    response = rack_client.post(path_query, headers, params)
     transform_response(response)        
   end
 
@@ -60,13 +87,14 @@ module HttpTestMethods
       else
         full_body
       end
-
     [parsed_body, response.headers, response.status]
   end
 
 end
 
 class MiniTest::Spec
+  include HttpTestMethods
+  
   class << self
     
     def test_GET(*args, &block)
@@ -91,7 +119,6 @@ class MiniTest::Spec
       test_title << path_query
       
       test(test_title) do
-        extend HttpTestMethods
         body, headers, code = GET(path_query, request_headers)
         if block.arity == 1
           self.instance_exec(body, &block)
