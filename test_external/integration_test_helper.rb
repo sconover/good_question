@@ -65,11 +65,9 @@ module HttpTestMethods
     transform_response(response)    
   end
   
-  def POST(path_query, post_contents)
+  def POST(path_query, headers={}, params={})
     check_rack_client
     
-    headers = post_contents[:headers] || {}
-    params = post_contents[:params] || {}
     response = rack_client.post(path_query, headers, params)
     transform_response(response)        
   end
