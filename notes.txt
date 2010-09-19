@@ -1,4 +1,14 @@
-  xregarding "basics" do
+Hmmm.  A good question arel engine?.  Would rock, think about this.  Might be perfect...
+
+Solr arel engine?  Separate project,..i think maybe i must do this...
+Acceptance: join relational table with solr query...  
+
+
+
+
+
+
+xregarding "basics" do
     
     def rack_client
       Rack::Client.new("https://spreadsheets.google.com")
